@@ -7,6 +7,30 @@ export interface SubmitResult {
   error?: string;
 }
 
+type ApiResponse = {
+  ok?: boolean;
+  id?: string;
+  error?: string;
+  detail?: string;
+  code?: string;
+};
+
+function formatApiError(status: number, data: ApiResponse, fallbackText: string): string {
+  const parts = [data.error, data.detail, data.code ? `código: ${data.code}` : null]
+    .filter(Boolean)
+    .join(" — ");
+  return parts || fallbackText || `HTTP ${status}`;
+}
+
+function parseApiResponse(text: string): ApiResponse {
+  if (!text) return {};
+  try {
+    return JSON.parse(text) as ApiResponse;
+  } catch {
+    return { detail: text.slice(0, 500) };
+  }
+}
+
 export async function submitReport(state: TicketState): Promise<SubmitResult> {
   const a = state.answers;
   const rawText = [
@@ -41,10 +65,11 @@ export async function submitReport(state: TicketState): Promise<SubmitResult> {
       }),
     });
 
-    const data = (await res.json().catch(() => ({}))) as { ok?: boolean; id?: string; error?: string };
+    const responseText = await res.text();
+    const data = parseApiResponse(responseText);
 
     if (!res.ok) {
-      return { ok: false, error: data.error || `HTTP ${res.status}` };
+      return { ok: false, error: formatApiError(res.status, data, responseText) };
     }
     return { ok: true, id: data.id };
   } catch (e) {
