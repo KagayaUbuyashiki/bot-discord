@@ -22,7 +22,8 @@ const QUESTIONS: Record<TicketState["step"], string | null> = {
 };
 
 const NEXT_STEP: Record<TicketState["step"], TicketState["step"]> = {
-  ask_steam_id: "ask_completed",
+  ask_steam_id: "ask_character_name",
+  ask_character_name: "ask_completed",
   ask_completed: "ask_mission_name",
   ask_mission_name: "ask_how_was_it",
   ask_how_was_it: "ask_difficulty",
