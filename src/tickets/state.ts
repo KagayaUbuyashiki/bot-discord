@@ -3,8 +3,11 @@
  * o usuário só clica em "Abrir Relatório" novamente.
  */
 
+export type TicketType = "report" | "register";
+
 export type TicketStep =
   | "ask_steam_id"
+  | "ask_character_name"
   | "ask_completed"
   | "ask_mission_name"
   | "ask_how_was_it"
@@ -20,10 +23,12 @@ export interface TicketState {
   channelId: string;
   userId: string;
   username: string;
+  type: TicketType;
   step: TicketStep;
   createdAt: number;
   answers: {
     steam_id?: string;
+    character_name?: string;
     completed?: string;
     mission_name?: string;
     how_was_it?: string;
@@ -36,11 +41,17 @@ export interface TicketState {
 
 const tickets = new Map<string, TicketState>();
 
-export function createTicket(channelId: string, userId: string, username: string): TicketState {
+export function createTicket(
+  channelId: string,
+  userId: string,
+  username: string,
+  type: TicketType = "report",
+): TicketState {
   const state: TicketState = {
     channelId,
     userId,
     username,
+    type,
     step: "ask_steam_id",
     createdAt: Date.now(),
     answers: {},
@@ -59,9 +70,12 @@ export function deleteTicket(channelId: string): void {
 }
 
 // Limpa tickets abandonados há mais de 1h (roda a cada 10min)
-setInterval(() => {
-  const cutoff = Date.now() - 60 * 60 * 1000;
-  for (const [id, state] of tickets.entries()) {
-    if (state.createdAt < cutoff) tickets.delete(id);
-  }
-}, 10 * 60 * 1000);
+setInterval(
+  () => {
+    const cutoff = Date.now() - 60 * 60 * 1000;
+    for (const [id, state] of tickets.entries()) {
+      if (state.createdAt < cutoff) tickets.delete(id);
+    }
+  },
+  10 * 60 * 1000,
+);

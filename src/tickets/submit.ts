@@ -33,20 +33,32 @@ function parseApiResponse(text: string): ApiResponse {
 
 export async function submitReport(state: TicketState): Promise<SubmitResult> {
   const a = state.answers;
-  const rawText = [
-    `Stalker (Discord): ${state.username}`,
-    `Steam ID: ${a.steam_id ?? "não informado"}`,
-    "",
-    `Status da missão: ${a.completed ?? "—"}`,
-    `Missão: ${a.mission_name ?? "—"}`,
-    "",
-    `Relato:`,
-    a.how_was_it ?? "—",
-    "",
-    `Dificuldade percebida: ${a.difficulty ?? "—"}`,
-    `Mutantes abatidos: ${a.mutants_killed ?? "—"}`,
-    `Observações: ${a.observations ?? "nenhuma"}`,
-  ].join("\n");
+  const isRegister = state.type === "register";
+
+  const rawText = isRegister
+    ? [
+        `SOLICITAÇÃO DE ACESSO — NOVO MEMBRO`,
+        `Nome do Personagem: ${a.character_name ?? "não informado"}`,
+        `Steam ID: ${a.steam_id ?? "não informado"}`,
+        `Discord: ${state.username} (${state.userId})`,
+        "",
+        `Termine sua customização diretamente no nosso pda privado logo após o link:`,
+        `https://pda-free-stalker-9aqkbb7jj-kagayaubuyashikis-projects.vercel.app`,
+      ].join("\n")
+    : [
+        `Stalker (Discord): ${state.username}`,
+        `Steam ID: ${a.steam_id ?? "não informado"}`,
+        "",
+        `Status da missão: ${a.completed ?? "—"}`,
+        `Missão: ${a.mission_name ?? "—"}`,
+        "",
+        `Relato:`,
+        a.how_was_it ?? "—",
+        "",
+        `Dificuldade percebida: ${a.difficulty ?? "—"}`,
+        `Mutantes abatidos: ${a.mutants_killed ?? "—"}`,
+        `Observações: ${a.observations ?? "nenhuma"}`,
+      ].join("\n");
 
   try {
     const res = await fetch(config.pdaApiUrl, {
@@ -56,8 +68,10 @@ export async function submitReport(state: TicketState): Promise<SubmitResult> {
         "x-webhook-secret": config.pdaSecret,
       },
       body: JSON.stringify({
+        type: state.type, // "report" ou "register"
         raw_text: rawText,
         stalker_steam_id: a.steam_id || undefined,
+        character_name: a.character_name || undefined,
         attachments: state.attachments,
         discord_user_id: state.userId,
         discord_username: state.username,

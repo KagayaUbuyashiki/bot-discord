@@ -28,10 +28,9 @@ const client = new Client({
 async function registerCommands(): Promise<void> {
   const rest = new REST({ version: "10" }).setToken(config.token);
   try {
-    await rest.put(
-      Routes.applicationGuildCommands(config.clientId, config.guildId),
-      { body: [setupPainelCommand.toJSON()] },
-    );
+    await rest.put(Routes.applicationGuildCommands(config.clientId, config.guildId), {
+      body: [setupPainelCommand.toJSON()],
+    });
     console.log("✓ Slash commands registrados");
   } catch (e) {
     console.error("Erro ao registrar comandos:", e);
@@ -53,7 +52,13 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
   // === Botão "Abrir Relatório" ===
   if (interaction.isButton() && interaction.customId === "open_report_ticket") {
-    await handleOpenTicket(interaction);
+    await handleOpenTicket(interaction, "report");
+    return;
+  }
+
+  // === Botão "Abrir Registro" ===
+  if (interaction.isButton() && interaction.customId === "open_register_ticket") {
+    await handleOpenTicket(interaction, "register");
     return;
   }
 
@@ -70,7 +75,12 @@ client.on(Events.InteractionCreate, async (interaction) => {
   }
 });
 
-async function handleOpenTicket(interaction: ButtonInteraction): Promise<void> {
+type TicketType = "report" | "register";
+
+async function handleOpenTicket(
+  interaction: ButtonInteraction,
+  type: TicketType = "report",
+): Promise<void> {
   await interaction.deferReply({ ephemeral: true });
 
   try {
@@ -88,14 +98,15 @@ async function handleOpenTicket(interaction: ButtonInteraction): Promise<void> {
       .toLowerCase()
       .replace(/[^a-z0-9-]/g, "-")
       .slice(0, 20);
-    const channelName = `relatorio-${safeName}`;
+    const prefix = type === "register" ? "registro" : "relatorio";
+    const channelName = `${prefix}-${safeName}`;
 
     // Verifica se já existe um canal aberto pra esse user
     const existing = guild.channels.cache.find(
       (c) => c.parentId === config.categoryId && c.name === channelName,
     );
     if (existing) {
-      await interaction.editReply(`Você já tem um relatório aberto em <#${existing.id}>`);
+      await interaction.editReply(`Você já tem um canal aberto em <#${existing.id}>`);
       return;
     }
 
@@ -144,11 +155,12 @@ async function handleOpenTicket(interaction: ButtonInteraction): Promise<void> {
       permissionOverwrites,
     });
 
-    const state = createTicket(newChannel.id, interaction.user.id, interaction.user.username);
+    const state = createTicket(newChannel.id, interaction.user.id, interaction.user.username, type);
 
     await newChannel.send(
-      `Bem-vindo, <@${interaction.user.id}>! Vou te fazer algumas perguntas pra registrar seu relatório. ` +
-      `Se quiser cancelar a qualquer momento, é só fechar o canal.`,
+      `Bem-vindo, <@${interaction.user.id}>! Vou te fazer algumas perguntas pra ${
+        type === "register" ? "registrar sua solicitação de acesso" : "registrar seu relatório"
+      }. ` + `Se quiser cancelar a qualquer momento, é só fechar o canal.`,
     );
     await askCurrentQuestion(newChannel as TextChannel, state);
 
@@ -211,7 +223,11 @@ client.on(Events.MessageCreate, async (message) => {
   const state = getTicket(channel.id);
   if (!state) return;
   if (state.userId !== message.author.id) return;
-  if (state.step === "awaiting_confirmation" || state.step === "submitting" || state.step === "done") {
+  if (
+    state.step === "awaiting_confirmation" ||
+    state.step === "submitting" ||
+    state.step === "done"
+  ) {
     return;
   }
 

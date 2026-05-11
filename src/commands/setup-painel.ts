@@ -25,11 +25,11 @@ export async function handleSetupPainel(interaction: ChatInputCommandInteraction
     .setTitle("📋 Sistema de Relatórios — Free Stalkers PDA")
     .setDescription(
       "Concluiu uma missão na Zona? Clica no botão abaixo para abrir um canal privado e enviar seu relatório.\n\n" +
-      "O bot vai te fazer algumas perguntas e enviar tudo direto para o PDA dos oficiais.\n\n" +
-      "**Tenha em mãos:**\n" +
-      "• Seu Steam ID\n" +
-      "• Capturas de tela do PDA (se tiver)\n" +
-      "• Detalhes da missão",
+        "O bot vai te fazer algumas perguntas e enviar tudo direto para o PDA dos oficiais.\n\n" +
+        "**Tenha em mãos:**\n" +
+        "• Seu Steam ID\n" +
+        "• Capturas de tela do PDA (se tiver)\n" +
+        "• Detalhes da missão",
     )
     .setFooter({ text: "Free Stalkers • Sistema de Relatórios v1.0" });
 
@@ -39,6 +39,11 @@ export async function handleSetupPainel(interaction: ChatInputCommandInteraction
       .setLabel("Abrir Relatório")
       .setEmoji("📝")
       .setStyle(ButtonStyle.Primary),
+    new ButtonBuilder()
+      .setCustomId("open_register_ticket")
+      .setLabel("Solicitar Acesso")
+      .setEmoji("🔑")
+      .setStyle(ButtonStyle.Secondary),
   );
 
   await interaction.channel.send({ embeds: [embed], components: [row] });

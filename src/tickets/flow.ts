@@ -5,8 +5,8 @@ import { submitReport } from "./submit.js";
 const QUESTIONS: Record<TicketState["step"], string | null> = {
   ask_steam_id:
     "Antes de começar, preciso do seu **Steam ID** (pode ser vanity URL ou ID numérico) — assim consigo vincular o relatório ao seu perfil de stalker.",
-  ask_completed:
-    "Iae stalker, conseguiu completar a missão? **(sim / parcialmente / não)**",
+  ask_character_name: "Qual o nome do seu personagem na Zona?",
+  ask_completed: "Iae stalker, conseguiu completar a missão? **(sim / parcialmente / não)**",
   ask_mission_name: "Qual missão te passaram?",
   ask_how_was_it: "E aí, como foi? Conta tudo nos detalhes.",
   ask_difficulty: "Achou difícil? **(fácil / médio / difícil / extremo)**",
@@ -37,6 +37,7 @@ const NEXT_STEP: Record<TicketState["step"], TicketState["step"]> = {
 
 const ANSWER_KEYS: Partial<Record<TicketState["step"], keyof TicketState["answers"]>> = {
   ask_steam_id: "steam_id",
+  ask_character_name: "character_name",
   ask_completed: "completed",
   ask_mission_name: "mission_name",
   ask_how_was_it: "how_was_it",
@@ -58,8 +59,8 @@ export async function handleAnswer(message: Message, state: TicketState): Promis
 
   // Etapa de anexos: coleta imagens da mensagem
   if (state.step === "ask_attachments") {
-    const imageAttachments = message.attachments.filter((a) =>
-      a.contentType?.startsWith("image/") ?? false
+    const imageAttachments = message.attachments.filter(
+      (a) => a.contentType?.startsWith("image/") ?? false,
     );
     for (const att of imageAttachments.values()) {
       state.attachments.push(att.url);
@@ -74,7 +75,12 @@ export async function handleAnswer(message: Message, state: TicketState): Promis
       await channel.send(`✓ ${imageAttachments.size} imagem(ns) recebida(s).`);
     }
 
-    state.step = NEXT_STEP[state.step];
+    // Pular para o fim se for registro
+    if (state.type === "register") {
+      state.step = "awaiting_confirmation";
+    } else {
+      state.step = NEXT_STEP[state.step];
+    }
     await sendSummary(channel, state);
     return;
   }
@@ -89,41 +95,64 @@ export async function handleAnswer(message: Message, state: TicketState): Promis
     state.answers[key] = content.slice(0, 2000);
   }
 
-  state.step = NEXT_STEP[state.step];
+  // Lógica de pulo de etapas baseada no tipo de ticket
+  if (state.type === "register") {
+    if (state.step === "ask_steam_id") {
+      state.step = "ask_character_name";
+    } else if (state.step === "ask_character_name") {
+      state.step = "ask_attachments";
+    }
+  } else {
+    state.step = NEXT_STEP[state.step];
+  }
+
   await askCurrentQuestion(channel, state);
 }
 
 async function sendSummary(channel: TextChannel, state: TicketState): Promise<void> {
   const a = state.answers;
-  const summary = [
-    "**📋 Resumo do seu relatório**",
-    "",
-    `**Steam ID:** ${a.steam_id ?? "—"}`,
-    `**Completou:** ${a.completed ?? "—"}`,
-    `**Missão:** ${a.mission_name ?? "—"}`,
-    `**Relato:** ${a.how_was_it ?? "—"}`,
-    `**Dificuldade:** ${a.difficulty ?? "—"}`,
-    `**Mutantes:** ${a.mutants_killed ?? "—"}`,
-    `**Observações:** ${a.observations ?? "—"}`,
-    `**Anexos:** ${state.attachments.length} imagem(ns)`,
-    "",
-    "Confere se está tudo certo e clica abaixo:",
-  ].join("\n");
+  const isRegister = state.type === "register";
+
+  const summary = isRegister
+    ? [
+        "**📋 Resumo da sua solicitação de acesso**",
+        "",
+        `**Nome do Personagem:** ${a.character_name ?? "—"}`,
+        `**Steam ID:** ${a.steam_id ?? "—"}`,
+        `**Fotos anexadas:** ${state.attachments.length}`,
+        "",
+        "Confirma os dados acima?",
+      ]
+    : [
+        "**📋 Resumo do seu relatório**",
+        "",
+        `**Steam ID:** ${a.steam_id ?? "—"}`,
+        `**Missão:** ${a.mission_name ?? "—"}`,
+        `**Status:** ${a.completed ?? "—"}`,
+        `**Dificuldade:** ${a.difficulty ?? "—"}`,
+        `**Mutantes:** ${a.mutants_killed ?? "—"}`,
+        `**Relato:** ${a.how_was_it ?? "—"}`,
+        `**Observações:** ${a.observations ?? "—"}`,
+        `**Fotos anexadas:** ${state.attachments.length}`,
+        "",
+        "Confirma o envio do relatório?",
+      ];
 
   const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder()
       .setCustomId(`ticket_submit_${state.channelId}`)
-      .setLabel("Enviar relatório")
-      .setEmoji("✅")
+      .setLabel(isRegister ? "Enviar Solicitação" : "Enviar Relatório")
       .setStyle(ButtonStyle.Success),
     new ButtonBuilder()
       .setCustomId(`ticket_cancel_${state.channelId}`)
       .setLabel("Cancelar")
-      .setEmoji("❌")
       .setStyle(ButtonStyle.Danger),
   );
 
-  await channel.send({ content: summary, components: [row] });
+  await channel.send({
+    content: summary.join("\n"),
+    components: [row],
+  });
 }
 
 export async function processSubmit(channel: TextChannel, state: TicketState): Promise<void> {
@@ -135,7 +164,7 @@ export async function processSubmit(channel: TextChannel, state: TicketState): P
     if (result.ok) {
       await channel.send(
         `✅ **Relatório enviado!** ID: \`${result.id}\`\n` +
-        `Os oficiais vão analisar em breve. Este canal será apagado em 30 segundos.`,
+          `Os oficiais vão analisar em breve. Este canal será apagado em 30 segundos.`,
       );
       state.step = "done";
       setTimeout(() => {
@@ -146,9 +175,7 @@ export async function processSubmit(channel: TextChannel, state: TicketState): P
       state.step = "awaiting_confirmation";
     }
   } catch (e) {
-    await channel.send(
-      `❌ Erro inesperado: ${e instanceof Error ? e.message : "desconhecido"}`,
-    );
+    await channel.send(`❌ Erro inesperado: ${e instanceof Error ? e.message : "desconhecido"}`);
     state.step = "awaiting_confirmation";
   }
 }
