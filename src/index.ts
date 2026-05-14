@@ -13,7 +13,10 @@ import {
 import { config } from "./config.js";
 import { createTicket, getTicket, deleteTicket } from "./tickets/state.js";
 import { askCurrentQuestion, handleAnswer, processSubmit } from "./tickets/flow.js";
-import { setupPainelCommand, handleSetupPainel } from "./commands/setup-painel.js";
+import { setupAcessoCommand, handleSetupAcesso } from "./commands/setup-acesso.js";
+import { setupRelatorioCommand, handleSetupRelatorio } from "./commands/setup-relatorio.js";
+
+import { handleApprovalNotification } from "./tickets/approval.js";
 
 const client = new Client({
   intents: [
@@ -21,15 +24,39 @@ const client = new Client({
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.DirectMessages,
   ],
+  partials: [Partials.Channel],
 });
+
+// === Express Server for incoming signals ===
+const app = express();
+app.use(express.json());
+
+app.post("/api/discord-report", async (req, res) => {
+  const secret = req.headers["x-webhook-secret"];
+  if (secret !== config.pdaSecret) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const body = req.body;
+  if (body.type === "approval_notification") {
+    await handleApprovalNotification(client, body);
+    return res.json({ ok: true });
+  }
+
+  // Se não for notificação, ignora (ou processa relatórios se necessário)
+  res.json({ ok: true });
+});
+
+app.listen(3000, () => console.log("✓ Servidor de sinais online na porta 3000"));
 
 // === Slash commands registration ===
 async function registerCommands(): Promise<void> {
   const rest = new REST({ version: "10" }).setToken(config.token);
   try {
     await rest.put(Routes.applicationGuildCommands(config.clientId, config.guildId), {
-      body: [setupPainelCommand.toJSON()],
+      body: [setupAcessoCommand.toJSON(), setupRelatorioCommand.toJSON()],
     });
     console.log("✓ Slash commands registrados");
   } catch (e) {
@@ -45,8 +72,15 @@ client.once(Events.ClientReady, async (c) => {
 
 // === Slash command handler ===
 client.on(Events.InteractionCreate, async (interaction) => {
-  if (interaction.isChatInputCommand() && interaction.commandName === "setup-painel") {
-    await handleSetupPainel(interaction);
+  if (interaction.isChatInputCommand()) {
+    if (interaction.commandName === "setup-acesso") {
+      await handleSetupAcesso(interaction);
+      return;
+    }
+    if (interaction.commandName === "setup-relatorio") {
+      await handleSetupRelatorio(interaction);
+      return;
+    }
     return;
   }
 

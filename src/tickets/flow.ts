@@ -1,6 +1,7 @@
 import { Message, TextChannel, ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
 import { TicketState, getTicket } from "./state.js";
 import { submitReport } from "./submit.js";
+import { config } from "../config.js";
 
 const QUESTIONS: Record<TicketState["step"], string | null> = {
   ask_steam_id:
@@ -167,6 +168,19 @@ export async function processSubmit(channel: TextChannel, state: TicketState): P
         `✅ **Relatório enviado!** ID: \`${result.id}\`\n` +
           `Os oficiais vão analisar em breve. Este canal será apagado em 30 segundos.`,
       );
+
+      // Atribuição de cargo no Discord se for registro
+      if (state.type === "register" && config.unofficalRoleId) {
+        try {
+          const member = await channel.guild.members.fetch(state.userId);
+          await member.roles.add(config.unofficalRoleId);
+          await channel.send(`🛡 **Cargo [Membro Não Oficial] atribuído com sucesso!**`);
+        } catch (roleError) {
+          console.error("Erro ao atribuir cargo:", roleError);
+          await channel.send(`⚠ Não consegui te dar o cargo automaticamente. Um oficial fará isso manualmente.`);
+        }
+      }
+
       state.step = "done";
       setTimeout(() => {
         channel.delete().catch(() => {});

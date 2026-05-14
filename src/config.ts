@@ -15,6 +15,7 @@ export const config = {
   guildId: required("DISCORD_GUILD_ID"),
   categoryId: required("DISCORD_CATEGORY_ID"),
   authorizedRoleId: process.env.DISCORD_AUTHORIZED_ROLE_ID || null,
+  unofficalRoleId: process.env.DISCORD_UNOFFICIAL_ROLE_ID || null,
   pdaApiUrl: required("PDA_API_URL"),
   pdaSecret: required("PDA_WEBHOOK_SECRET"),
 };
