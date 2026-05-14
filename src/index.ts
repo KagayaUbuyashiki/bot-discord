@@ -1,21 +1,22 @@
 import {
   Client,
-  GatewayIntentBits,
   Events,
-  ChannelType,
-  PermissionFlagsBits,
-  TextChannel,
+  GatewayIntentBits,
   REST,
   Routes,
+  Interaction,
   ButtonInteraction,
-  CategoryChannel,
+  ChannelType,
+  Partials,
+  PermissionFlagsBits,
+  TextChannel,
 } from "discord.js";
+import express from "express";
 import { config } from "./config.js";
 import { createTicket, getTicket, deleteTicket } from "./tickets/state.js";
-import { askCurrentQuestion, handleAnswer, processSubmit } from "./tickets/flow.js";
+import { handleAnswer, askCurrentQuestion, processSubmit } from "./tickets/flow.js";
 import { setupAcessoCommand, handleSetupAcesso } from "./commands/setup-acesso.js";
 import { setupRelatorioCommand, handleSetupRelatorio } from "./commands/setup-relatorio.js";
-
 import { handleApprovalNotification } from "./tickets/approval.js";
 
 const client = new Client({
@@ -36,16 +37,17 @@ app.use(express.json());
 app.post("/api/discord-report", async (req, res) => {
   const secret = req.headers["x-webhook-secret"];
   if (secret !== config.pdaSecret) {
-    return res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Unauthorized" });
+    return;
   }
 
   const body = req.body;
-  if (body.type === "approval_notification") {
+  if (body && body.type === "approval_notification") {
     await handleApprovalNotification(client, body);
-    return res.json({ ok: true });
+    res.json({ ok: true });
+    return;
   }
 
-  // Se não for notificação, ignora (ou processa relatórios se necessário)
   res.json({ ok: true });
 });
 
