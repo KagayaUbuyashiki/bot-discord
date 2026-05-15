@@ -1,0 +1,318 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Free Stalkers PDA — S.T.A.L.K.E.R. SoC theme */
+
+@theme inline {
+  --font-mono: "JetBrains Mono", "Share Tech Mono", ui-monospace, monospace;
+  --font-sans: "JetBrains Mono", ui-monospace, monospace;
+  --font-display: "Share Tech Mono", "JetBrains Mono", monospace;
+
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 6px;
+  --radius-2xl: 8px;
+  --radius-3xl: 12px;
+  --radius-4xl: 16px;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-pda-glow: var(--pda-glow);
+  --color-pda-dim: var(--pda-dim);
+  --color-pda-warn: var(--pda-warn);
+  --color-pda-danger: var(--pda-danger);
+  --color-pda-bg: var(--pda-bg);
+  --color-pda-panel: var(--pda-panel);
+  --color-pda-grid: var(--pda-grid);
+}
+
+:root {
+  --radius: 0.25rem;
+  --pda-bg: oklch(0.14 0.03 145);
+  --pda-panel: oklch(0.2 0.04 145);
+  --pda-grid: oklch(0.28 0.06 145);
+  --pda-dim: oklch(0.55 0.14 145);
+  --pda-glow: oklch(0.82 0.22 142);
+  --pda-warn: oklch(0.82 0.18 85);
+  --pda-danger: oklch(0.65 0.24 25);
+
+  --background: var(--pda-bg);
+  --foreground: var(--pda-glow);
+  --card: var(--pda-panel);
+  --card-foreground: var(--pda-glow);
+  --popover: var(--pda-panel);
+  --popover-foreground: var(--pda-glow);
+  --primary: var(--pda-glow);
+  --primary-foreground: oklch(0.1 0.02 145);
+  --secondary: var(--pda-grid);
+  --secondary-foreground: var(--pda-glow);
+  --muted: oklch(0.22 0.04 145);
+  --muted-foreground: var(--pda-dim);
+  --accent: oklch(0.3 0.08 145);
+  --accent-foreground: var(--pda-glow);
+  --destructive: var(--pda-danger);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: var(--pda-grid);
+  --input: var(--pda-grid);
+  --ring: var(--pda-glow);
+  --chart-1: var(--pda-glow);
+  --chart-2: var(--pda-warn);
+  --chart-3: var(--pda-dim);
+  --chart-4: oklch(0.6 0.18 200);
+  --chart-5: var(--pda-danger);
+  --sidebar: oklch(0.12 0.025 145);
+  --sidebar-foreground: var(--pda-glow);
+  --sidebar-primary: var(--pda-glow);
+  --sidebar-primary-foreground: oklch(0.1 0.02 145);
+  --sidebar-accent: oklch(0.22 0.05 145);
+  --sidebar-accent-foreground: var(--pda-glow);
+  --sidebar-border: var(--pda-grid);
+  --sidebar-ring: var(--pda-glow);
+}
+
+.dark {
+  --background: var(--pda-bg);
+  --foreground: var(--pda-glow);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html,
+  body {
+    background-color: var(--pda-bg);
+    color: var(--pda-glow);
+    font-family: var(--font-mono);
+    -webkit-font-smoothing: none;
+    text-rendering: optimizeSpeed;
+  }
+  body {
+    background-image: radial-gradient(
+      ellipse at center,
+      oklch(0.18 0.04 145) 0%,
+      oklch(0.1 0.02 145) 100%
+    );
+    min-height: 100vh;
+  }
+  ::selection {
+    background: var(--pda-glow);
+    color: var(--pda-bg);
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--pda-bg);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--pda-grid);
+    border: 1px solid var(--pda-dim);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--pda-dim);
+  }
+}
+
+.pda-scanlines {
+  position: relative;
+}
+.pda-scanlines::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 2px,
+    oklch(0 0 0 / 0.18) 2px,
+    oklch(0 0 0 / 0.18) 3px
+  );
+  z-index: 50;
+  mix-blend-mode: multiply;
+}
+.pda-scanlines::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 50%, oklch(0 0 0 / 0.55) 100%);
+  z-index: 51;
+}
+
+.pda-glow {
+  text-shadow:
+    0 0 1px var(--pda-glow),
+    0 0 4px oklch(from var(--pda-glow) l c h / 0.7),
+    0 0 12px oklch(from var(--pda-glow) l c h / 0.45);
+}
+.pda-glow-strong {
+  text-shadow:
+    0 0 2px var(--pda-glow),
+    0 0 8px var(--pda-glow),
+    0 0 18px oklch(from var(--pda-glow) l c h / 0.6);
+}
+
+.pda-panel {
+  background:
+    linear-gradient(
+      180deg,
+      oklch(from var(--pda-panel) l c h / 0.7),
+      oklch(from var(--pda-panel) l c h / 0.4)
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 2px,
+      oklch(from var(--pda-glow) l c h / 0.025) 2px,
+      oklch(from var(--pda-glow) l c h / 0.025) 3px
+    );
+  border: 1px solid var(--pda-grid);
+}
+
+@keyframes pda-flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  3% {
+    opacity: 0.92;
+  }
+  6% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.97;
+  }
+}
+.pda-flicker {
+  animation: pda-flicker 6s infinite;
+}
+
+@keyframes pda-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+.pda-cursor::after {
+  content: "█";
+  display: inline-block;
+  margin-left: 2px;
+  animation: pda-blink 1s steps(2) infinite;
+}
+
+@keyframes pda-scan {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+.pda-scan-line {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+}
+.pda-scan-line::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    oklch(from var(--pda-glow) l c h / 0.06),
+    transparent
+  );
+  animation: pda-scan 8s linear infinite;
+}
+
+.pda-corners {
+  position: relative;
+}
+.pda-corners::before,
+.pda-corners::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--pda-glow);
+}
+.pda-corners::before {
+  top: -1px;
+  left: -1px;
+  border-right: none;
+  border-bottom: none;
+}
+.pda-corners::after {
+  bottom: -1px;
+  right: -1px;
+  border-left: none;
+  border-top: none;
+}
+
+.pda-input {
+  width: 100%;
+  background: oklch(from var(--input) l c h / 0.4);
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--foreground);
+  outline: none;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+.pda-input:focus {
+  border-color: var(--primary);
+  box-shadow:
+    0 0 0 1px var(--primary),
+    0 0 8px oklch(from var(--pda-glow) l c h / 0.3);
+}

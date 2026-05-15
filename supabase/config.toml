@@ -1,0 +1,4 @@
+project_id = "lqdbjvvdahjvweiezpwh"
+
+[functions.discord-report]
+verify_jwt = false
