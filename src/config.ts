@@ -18,4 +18,10 @@ export const config = {
   unofficalRoleId: process.env.DISCORD_UNOFFICIAL_ROLE_ID || null,
   pdaApiUrl: required("PDA_API_URL"),
   pdaSecret: required("PDA_WEBHOOK_SECRET"),
+  roleIds: {
+    iniciado: process.env.DISCORD_ROLE_INICIADO_ID || null,
+    medio: process.env.DISCORD_ROLE_MEDIO_ID || null,
+    high: process.env.DISCORD_ROLE_HIGH_ID || null,
+    admin: process.env.DISCORD_ROLE_ADMIN_ID || null,
+  } as Record<string, string | null>,
 };
