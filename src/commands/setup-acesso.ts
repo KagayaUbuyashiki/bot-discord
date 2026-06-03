@@ -44,3 +44,5 @@ export async function handleSetupAcesso(interaction: ChatInputCommandInteraction
   await interaction.channel.send({ embeds: [embed], components: [row] });
   await interaction.reply({ content: "✅ Painel de acesso postado.", ephemeral: true });
 }
+
+// .

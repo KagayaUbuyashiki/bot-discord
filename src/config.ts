@@ -25,3 +25,5 @@ export const config = {
     admin: process.env.DISCORD_ROLE_ADMIN_ID || null,
   } as Record<string, string | null>,
 };
+
+// .

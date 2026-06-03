@@ -55,3 +55,5 @@ export async function handleApprovalNotification(client: Client, data: any) {
     console.error(`Erro ao processar aprovação para ${discord_user_id}:`, error);
   }
 }
+
+// .

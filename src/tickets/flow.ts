@@ -198,3 +198,5 @@ export async function processSubmit(channel: TextChannel, state: TicketState): P
 export function getActiveTicket(channelId: string): TicketState | undefined {
   return getTicket(channelId);
 }
+
+// .
