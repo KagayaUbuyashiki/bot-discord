@@ -5,14 +5,14 @@ import { config } from "../config.js";
 
 const QUESTIONS: Record<TicketState["step"], string | null> = {
   ask_steam_id:
-    "Antes de começar, preciso do seu **Steam ID** (pode ser vanity URL ou ID numérico) — assim consigo vincular o relatório ao seu perfil de stalker.",
+    "Antes de começar, preciso do seu **Steam ID 64** — assim consigo vincular o relatório ao seu perfil de stalker.",
   ask_character_name: "Qual o nome do seu personagem na Zona?",
   ask_completed: "Iae stalker, conseguiu completar a missão? **(sim / parcialmente / não)**",
   ask_mission_name: "Qual missão te passaram?",
   ask_how_was_it: "E aí, como foi? Conta tudo nos detalhes.",
   ask_difficulty: "Achou difícil? **(fácil / médio / difícil / extremo)**",
   ask_mutants_killed:
-    "Matou quantos mutantes? Se sim, quais? Pode descrever (ex: '3 cães cegos, 1 boar').",
+    "Matou quantos mutantes? Se sim, quais? Pode descrever (ex: '3 blind dogs, 1 boar ( javali )').",
   ask_observations:
     "Algum problema no caminho que gostaria de deixar como observação? Se não, manda **'nada'**.",
   ask_attachments:
