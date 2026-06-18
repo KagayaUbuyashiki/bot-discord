@@ -200,3 +200,4 @@ export function getActiveTicket(channelId: string): TicketState | undefined {
 }
 
 // .
+// ve se o cabra faz a função dele (railway)
