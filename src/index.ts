@@ -18,6 +18,8 @@ import { handleAnswer, askCurrentQuestion, processSubmit } from "./tickets/flow.
 import { setupAcessoCommand, handleSetupAcesso } from "./commands/setup-acesso.js";
 import { setupRelatorioCommand, handleSetupRelatorio } from "./commands/setup-relatorio.js";
 import { handleApprovalNotification } from "./tickets/approval.js";
+import { handleAssignDefaultRole } from "./tickets/role-assign.js";
+import { handleSendDm } from "./tickets/send-dm.js";
 
 const client = new Client({
   intents: [
@@ -45,6 +47,18 @@ app.post("/api/discord-report", async (req, res) => {
   if (body && body.type === "approval_notification") {
     await handleApprovalNotification(client, body);
     res.json({ ok: true });
+    return;
+  }
+
+  if (body && body.type === "assign_default_role") {
+    await handleAssignDefaultRole(client, body);
+    res.json({ ok: true });
+    return;
+  }
+
+  if (body && body.type === "send_dm") {
+    const result = await handleSendDm(client, body);
+    res.json(result);
     return;
   }
 

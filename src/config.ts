@@ -18,6 +18,7 @@ export const config = {
   // Opcionais: usa process.env diretamente pois não são obrigatórias, se não existir retorna null
   authorizedRoleId: process.env.DISCORD_AUTHORIZED_ROLE_ID || null,
   unofficalRoleId: process.env.DISCORD_UNOFFICIAL_ROLE_ID || null,
+  defaultRoleId: process.env.DEFAULT_DISCORD_ROLE_ID || "1511836001432109106",
   pdaApiUrl: required("PDA_API_URL"),
   pdaSecret: required("PDA_WEBHOOK_SECRET"),
   roleIds: {
